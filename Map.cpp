@@ -46,7 +46,7 @@ const unsigned Map::width() const {
 
 
 const unsigned Map::height() const {
-	return mapWidth;
+	return mapHeight;
 }
 
 

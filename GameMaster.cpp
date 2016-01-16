@@ -4,10 +4,15 @@
 
 shared_ptr<GameMaster> GameMaster::make(NextStateFunction isNeedLivenUp, NextStateFunction isNeedDie, shared_ptr<Map> map) {
 
-	if (!isNeedLivenUp, isNeedDie) {
+	if (!isNeedLivenUp || !isNeedDie) {
 		throw logic_error("Can't create game master without main logic");
 	}
 	return shared_ptr<GameMaster>(new GameMaster(isNeedLivenUp, isNeedDie, map));
+}
+
+
+shared_ptr<Map> GameMaster::getMap() const {
+	return map;
 }
 
 
@@ -24,13 +29,16 @@ GameMaster& GameMaster::next() {
 	}
 
 	prevIterationMap = map->copy();
+	auto newMap = map->copy();
 
 	for (unsigned i = 0; i < map->height(); ++i) {
 
 		for (unsigned j = 0; j < map->width(); ++j) {
-			updateCell(map, j, i);
+			newMap->cell(j, i) = updateCell(map, j, i);
 		}
 	}
+	swap(newMap, map);
+	return *this;
 }
 
 
@@ -52,13 +60,14 @@ GameMaster::GameMaster(NextStateFunction isNeedLivenUp, NextStateFunction isNeed
 }
 
 
-void GameMaster::updateCell(shared_ptr<Map> map, unsigned column, unsigned row) const {
+Cell GameMaster::updateCell(shared_ptr<Map> map, unsigned column, unsigned row) const {
 	auto cell = map->cell(column, row);
 
 	if (	(cell == Cell::State::ALIVE && isNeedDie(column, row, map)) ||
 			isNeedLivenUp(column, row, map)) {
 		cell.flip();
 	}
+	return cell;
 }
 
 

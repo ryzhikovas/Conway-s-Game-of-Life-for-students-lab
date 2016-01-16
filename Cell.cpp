@@ -44,10 +44,10 @@ std::string Cell::toString() const {
 	std::string result;
 
 	if (state == State::DEAD) {
-		result = " - ";
+		result = "-";
 	}
 	else {
-		result = " + ";
+		result = "+";
 	}
 	return result;
 }
@@ -56,11 +56,12 @@ std::string Cell::toString() const {
 Cell Cell::fromString(const std::string& line) {
 	Cell result;
 
-	if (line == " - ") {
+	if (line == "-") {
 		result = State::DEAD;
-	}
-	else {
+	} else if (line == "+") {
 		result = State::ALIVE;
+	} else {
+		throw std::logic_error("Invalid map file format");
 	}
 	return result;
 }
