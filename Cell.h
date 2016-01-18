@@ -22,5 +22,5 @@ public:
 	Cell& setState(const State state);
 
 	std::string toString() const;
-	static Cell fromString(const std::string& line);
+	static Cell fromString(const char line);
 };

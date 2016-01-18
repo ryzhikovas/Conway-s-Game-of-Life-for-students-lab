@@ -1,66 +1,32 @@
 #include "GameMaster.h"
+#include "GameLogic.h"
 #include "IOManager.h"
-#include "map.h"
 #include "Printer.h"
+#include <fstream>
 #include <iostream>
 
-
+#include "Map.h"
 int main() {
-	auto aliveNeighborsCount = [](unsigned column, unsigned row, shared_ptr<Map> map) -> unsigned {
-		unsigned xIndex[] = { column, column - 1, column + 1 };
-		unsigned yIndex[] = { row, row - 1, row + 1 };
+	shared_ptr<Map> map;
+	cout << "Please specify the path to map file" << endl;
+	string filePath;
+	cin >> filePath;
 
-		for (auto& x : xIndex) {
-			if (x == -1) {
-				x = map->width() - 1;
-			}
-			else if (x == map->width()) {
-				x = 0;
-			}
-		}
+	try {
+		map = IOManager::load(filePath);
+		auto gameMaster = GameMaster::make(GameLogic::isNeedLivenUp, GameLogic::isNeedDie, map);
 
-		for (auto& y : yIndex) {
-			if (y == -1) {
-				y = map->height() - 1;
-			}
-			else if (y == map->height()) {
-				y = 0;
-			}
-		}
+		do {
+			Printer::print(gameMaster->getMap(), cout);
+			getchar();
+		} while (!gameMaster->next().isStable());
 
-		unsigned aliveNeighbors(0);
-
-		for (const auto y : yIndex) {
-
-			for (const auto x : xIndex) {
-
-				if (x == column && y == row) continue;
-
-				if (map->cell(x, y) == Cell::State::ALIVE) {
-					aliveNeighbors++;
-				}
-			}
-		}
-		return aliveNeighbors;
-	};
-
-	NextStateFunction isNeedLivenUp = [aliveNeighborsCount](unsigned column, unsigned row, shared_ptr<Map> map) -> bool {
-		return aliveNeighborsCount(column, row, map) == 3;
-	};
-
-	NextStateFunction isNeedDie = [aliveNeighborsCount](unsigned column, unsigned row, shared_ptr<Map> map) -> bool {
-		const auto alivesCount = aliveNeighborsCount(column, row, map);
-		return alivesCount < 2 || alivesCount > 3;
-	};
-
-
-	auto map = IOManager::load("D://map.txt");
-
-	auto gameMaster = GameMaster::make(isNeedLivenUp, isNeedDie, map);
-
-	do {
-		Printer::print(gameMaster->getMap(), cout);
-		getchar();
-	} while (!gameMaster->next().isStable());
+	} catch (ifstream::failure ex) {
+		cerr << "Bad file path or file format" << endl << ex.what();
+	} catch (exception ex) {
+		cerr << "Unexpected exception. This is a bad error processing. Don't do that. Good luck" << endl << ex.what();
+	}
+	cout << endl << "Press any key" << endl;
+	getchar();
 }
 

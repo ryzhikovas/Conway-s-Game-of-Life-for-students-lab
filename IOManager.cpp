@@ -14,6 +14,7 @@ void IOManager::save(shared_ptr<Map> map, const string& path) {
 
 shared_ptr<Map> IOManager::load(const string& path) {
 	ifstream file(path);
+	file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	string word;
 
 	file >> word;
@@ -24,10 +25,10 @@ shared_ptr<Map> IOManager::load(const string& path) {
 	auto map = Map::make(width, height);
 
 	for (unsigned i = 0; i < map->height(); ++i) {
+		file >> word;
 
 		for (unsigned j = 0; j < map->width(); ++j) {
-			file >> word;
-			map->cell(j, i) = Cell::fromString(word);
+			map->cell(j, i) = Cell::fromString(word[j]);
 		}
 	}
 

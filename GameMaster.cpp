@@ -2,7 +2,8 @@
 #include "Map.h"
 #include <system_error>
 
-shared_ptr<GameMaster> GameMaster::make(NextStateFunction isNeedLivenUp, NextStateFunction isNeedDie, shared_ptr<Map> map) {
+shared_ptr<GameMaster> GameMaster::make(GameLogic::NextStateFunction isNeedLivenUp, GameLogic::NextStateFunction isNeedDie,
+										shared_ptr<Map> map) {
 
 	if (!isNeedLivenUp || !isNeedDie) {
 		throw logic_error("Can't create game master without main logic");
@@ -52,7 +53,7 @@ const bool GameMaster::isStable() const {
 }
 
 
-GameMaster::GameMaster(NextStateFunction isNeedLivenUp, NextStateFunction isNeedDie, shared_ptr<Map> map):
+GameMaster::GameMaster(GameLogic::NextStateFunction isNeedLivenUp, GameLogic::NextStateFunction isNeedDie, shared_ptr<Map> map):
 	isNeedLivenUp(isNeedLivenUp),
 	isNeedDie(isNeedDie),
 	map(map),
@@ -63,8 +64,9 @@ GameMaster::GameMaster(NextStateFunction isNeedLivenUp, NextStateFunction isNeed
 Cell GameMaster::updateCell(shared_ptr<Map> map, unsigned column, unsigned row) const {
 	auto cell = map->cell(column, row);
 
-	if (	(cell == Cell::State::ALIVE && isNeedDie(column, row, map)) ||
-			isNeedLivenUp(column, row, map)) {
+	if (cell == Cell::State::ALIVE && isNeedDie(column, row, map)) {
+		cell.flip();
+	} else if (cell == Cell::State::DEAD && isNeedLivenUp(column, row, map)) {
 		cell.flip();
 	}
 	return cell;
