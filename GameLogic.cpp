@@ -30,8 +30,6 @@ const unsigned GameLogic::aliveNeighborsCount(unsigned column, unsigned row, std
 
 		for (const auto x : xIndex) {
 
-			if (x == column && y == row) continue;
-
 			if (map->cell(x, y) == Cell::State::ALIVE) {
 				aliveNeighbors++;
 			}
@@ -48,5 +46,5 @@ const bool GameLogic::isNeedLivenUp(unsigned column, unsigned row, shared_ptr<Ma
 
 const bool GameLogic::isNeedDie(unsigned column, unsigned row, shared_ptr<Map> map) {
 	const auto alivesCount = aliveNeighborsCount(column, row, map);
-	return alivesCount < 2 || alivesCount > 3;
+	return alivesCount < 2 || alivesCount >= 3;
 };
